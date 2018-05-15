@@ -15,6 +15,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.telephony.PhoneNumberUtils
+import android.telephony.SmsManager
+import android.widget.CheckBox
+import android.content.ContentResolver
+import android.R.attr.path
+import android.R.attr.scheme
+import android.annotation.TargetApi
+import android.net.Uri
+import android.content.res.AssetFileDescriptor
+import java.io.FileReader
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +35,12 @@ class MainActivity : AppCompatActivity() {
             val formattedNumber = PhoneNumberUtils.formatNumber(number)
 
             Toast.makeText(this@MainActivity, formattedNumber + ": " + message , Toast.LENGTH_SHORT).show()
+
+            val descriptor = assets.openFd("knockAudio.mp3")
+            val reader = FileReader(descriptor.fileDescriptor)
+            
+            val sms = SmsManager.getDefault()
+
         }
     }
     private lateinit var alarmIntent: PendingIntent
@@ -44,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         var messageCheck: Boolean
         var numberCheck: Boolean
         var intervalCheck: Boolean
-
 
         button.setOnClickListener{
             val alarmMgr = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -68,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                 button.text = "Stop"
                 alarmStatus= true
 
+
                 val intent = Intent().apply {
                     putExtra("message", message.text.toString())
                     putExtra("number", number.text.toString())
@@ -75,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
                 alarmMgr.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + interval.text.toString().toInt()* 1000 * 60, interval.text.toString().toLong()* 1000 * 60, alarmIntent)
+
             }else if (!messageCheck &&numberCheck && intervalCheck ){
                 Toast.makeText(this, "Message can't be empty", Toast.LENGTH_SHORT).show()
             }else if (!numberCheck &&messageCheck && intervalCheck){
